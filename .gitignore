@@ -1,10 +1,11 @@
 target/
+logs/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
 /dispatcher/src/main/resources/application.properties
-/logs/
+/node/src/main/resources/application.properties
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
