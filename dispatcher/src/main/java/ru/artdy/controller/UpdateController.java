@@ -56,7 +56,7 @@ public class UpdateController {
         setView(sendMessage);
     }
 
-    private void setView(SendMessage sendMessage) {
+    public void setView(SendMessage sendMessage) {
         botController.sendAnswerMessage(sendMessage);
     }
 
