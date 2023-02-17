@@ -7,6 +7,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.artdy.entity.AppDocument;
+import ru.artdy.entity.AppPhoto;
 import ru.artdy.entity.AppUser;
 import ru.artdy.entity.RawData;
 import ru.artdy.entity.enums.UserState;
@@ -123,11 +124,21 @@ public class MainServiceImpl implements MainService {
         AppUser appUser = findOrSaveAppUser(update);
         Long chatId = update.getMessage().getChatId();
         if (isNotAllowToSaveContent(chatId, appUser )) {
-            //TODO реализовать логику загрузки фото
             return;
         }
-        final String answer = "You photo successfully added! Download link: https://google.com";
-        sendAnswer(answer, chatId);
+
+        try {
+            AppPhoto appPhoto = fileService.processPhoto(update.getMessage());
+            //TODO добавить генерацию ссылки для скачивания
+            String textAnswer = "Photo successfully uploaded! " +
+                    "Your downloading link: " +
+                    "https://www.google.com";
+            sendAnswer(textAnswer, chatId);
+        } catch (UploadFileException e) {
+            log.error(e);
+            String textAnswer = "Photo uploading failed! Try again later.";
+            sendAnswer(textAnswer, chatId);
+        }
     }
 
     private void sendAnswer(String output, Long chatId) {
