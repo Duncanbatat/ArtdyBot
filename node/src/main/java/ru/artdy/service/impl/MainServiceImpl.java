@@ -6,32 +6,37 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
+import ru.artdy.entity.AppDocument;
 import ru.artdy.entity.AppUser;
 import ru.artdy.entity.RawData;
 import ru.artdy.entity.enums.UserState;
+import ru.artdy.exceprions.UploadFileException;
 import ru.artdy.repository.AppUserRepository;
 import ru.artdy.repository.RawDataRepository;
 import ru.artdy.service.AnswerProducer;
+import ru.artdy.service.FileService;
 import ru.artdy.service.MainService;
+import ru.artdy.service.enums.ServiceCommand;
 
-import static ru.artdy.service.enums.ServiceCommands.*;
+import static ru.artdy.service.enums.ServiceCommand.*;
 import static ru.artdy.entity.enums.UserState.*;
 
 @Log4j
 @Service
 public class MainServiceImpl implements MainService {
     private final AnswerProducer answerProducer;
+    private final FileService fileService;
     private final RawDataRepository rawDataRepository;
     private final AppUserRepository appUserRepository;
 
     public MainServiceImpl(AnswerProducer answerProducer,
-                           RawDataRepository rawDataRepository,
+                           FileService fileService, RawDataRepository rawDataRepository,
                            AppUserRepository appUserRepository) {
         this.answerProducer = answerProducer;
+        this.fileService = fileService;
         this.rawDataRepository = rawDataRepository;
         this.appUserRepository = appUserRepository;
     }
-
 
     @Override
     public void processTextMessage(Update update) {
@@ -39,13 +44,14 @@ public class MainServiceImpl implements MainService {
 
         AppUser appUser = findOrSaveAppUser(update);
         UserState userState = appUser.getUserState();
-        String text = update.getMessage().getText();
+        String textMessage = update.getMessage().getText();
         String output = "";
 
-        if (CANCEL.equals(text)) {
+        ServiceCommand serviceCommand = fromValues(textMessage);
+        if (CANCEL.equals(serviceCommand)) {
             output = cancelProcess(appUser);
         } else if (BASIC_STATE.equals(userState)) {
-            output = serviceCommandProcess(appUser, text);
+            output = serviceCommandProcess(serviceCommand);
         } else if (WAIT_FOR_EMAIL_STATE.equals(userState)) {
             //TODO добавить проверку емейла
         } else {
@@ -57,17 +63,45 @@ public class MainServiceImpl implements MainService {
         sendAnswer(output, chatId);
     }
 
+    private String cancelProcess(AppUser appUser) {
+        appUser.setUserState(BASIC_STATE);
+        appUserRepository.save(appUser);
+        return "Command cancelled.";
+    }
+
+    private String serviceCommandProcess(ServiceCommand serviceCommand) {
+        if (REGISTRATION.equals(serviceCommand)) {
+            //TODO добавить регистрацию
+            return "Registration is not supported yet!";
+        } else if (HELP.equals(serviceCommand)) {
+            return help();
+        } else if (START.equals(serviceCommand)) {
+            return "Hi! Type /help for available commands list!";
+        } else {
+            return "Unsupported command! Type /help for available commands list!";
+        }
+    }
+
     @Override
     public void processDocMessage(Update update) {
         saveRawData(update);
         AppUser appUser = findOrSaveAppUser(update);
         Long chatId = update.getMessage().getChatId();
         if (isNotAllowToSaveContent(chatId, appUser)) {
-            //TODO реализовать логику загрузки файлов
             return;
         }
-        final String answer = "You document successfully added! Download link: https://google.com";
-        sendAnswer(answer, chatId);
+        try {
+            AppDocument appDocument = fileService.processDoc(update.getMessage());
+            //TODO добавить генерацию ссылки для скачивания
+            String textAnswer = "Document successfully uploaded! " +
+                    "Your downloading link: " +
+                    "https://www.google.com";
+            sendAnswer(textAnswer, chatId);
+        } catch (UploadFileException e) {
+            log.error(e);
+            String textAnswer = "File uploading failed! Try again later.";
+            sendAnswer(textAnswer, chatId);
+        }
     }
 
     private boolean isNotAllowToSaveContent(Long chatId, AppUser appUser) {
@@ -103,27 +137,11 @@ public class MainServiceImpl implements MainService {
         answerProducer.produceAnswer(sendMessage);
     }
 
-    private String serviceCommandProcess(AppUser appUser, String text) {
-        if (REGISTRATION.equals(text)) {
-            //TODO добавить регистрацию
-            return "Registration is not supported yet!";
-        } else if (HELP.equals(text)) {
-            return help();
-        } else if (START.equals(text)) {
-            return "Hi! Type /help for available commands list!";
-        } else {
-            return "Unsupported command! Type /help for available commands list!";
-        }
-    }
-
     private String help() {
-        return null;
-    }
-
-    private String cancelProcess(AppUser appUser) {
-        appUser.setUserState(BASIC_STATE);
-        appUserRepository.save(appUser);
-        return "Command cancelled.";
+        return "Command list:\n" +
+                "• \\start\n" +
+                "• \\help\n" +
+                "• \\registration\n";
     }
 
     private AppUser findOrSaveAppUser(Update update) {

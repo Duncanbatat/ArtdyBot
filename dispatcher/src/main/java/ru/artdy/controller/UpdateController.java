@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.artdy.service.AnswerConsumer;
 import ru.artdy.service.UpdateProducer;
 import ru.artdy.utils.MessageUtils;
 
@@ -13,13 +14,13 @@ import static ru.artdy.model.RabbitQueue.*;
 @Log4j
 @Controller
 public class UpdateController {
-    private final BotController botController;
     private final UpdateProducer updateProducer;
+    private final AnswerConsumer answerConsumer;
     private final MessageUtils messageUtils;
 
-    public UpdateController(BotController botController, UpdateProducer updateProducer, MessageUtils messageUtils) {
-        this.botController = botController;
+    public UpdateController(UpdateProducer updateProducer, AnswerConsumer answerConsumer, MessageUtils messageUtils) {
         this.updateProducer = updateProducer;
+        this.answerConsumer = answerConsumer;
         this.messageUtils = messageUtils;
     }
 
@@ -57,7 +58,7 @@ public class UpdateController {
     }
 
     public void setView(SendMessage sendMessage) {
-        botController.sendAnswerMessage(sendMessage);
+        answerConsumer.consume(sendMessage);
     }
 
     private void processTextMessage(Update update) {
