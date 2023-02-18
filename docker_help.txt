@@ -1,6 +1,24 @@
 1. Start RabbitMQ container:
-docker run -d --hostname rabbitmq --name rabbitmq -p 5672:5672 -p 15672:15672 -v rabbitmq_data:/var/lib/rabbitmq --restart=unless-stopped rabbitmq:latest
+docker run
+    -d
+    --hostname rabbitmq
+    --name rabbitmq
+    -p 5672:5672
+    -p 15672:15672
+    -v rabbitmq_data:/var/lib/rabbitmq
+    --restart=unless-stopped
+    rabbitmq:latest
 
 2. Start PostreSQL container:
-docker run -d --hostname storage --name storage -p 5432:5432 -e POSTGRES_USER=artdy -e POSTGRES_PASSWORD=12345 -e POSTGRES_DB=storage -v storage:/var/lib/postgresql/data --restart=unless-stopped postgres:latest
+docker run
+    -d
+    --hostname storage
+    --name storage
+    -p 5432:5432
+    -e POSTGRES_USER=artdy
+    -e POSTGRES_PASSWORD=12345
+    -e POSTGRES_DB=storage
+    -v storage:/var/lib/postgresql/data
+    --restart=unless-stopped
+    postgres:latest
 

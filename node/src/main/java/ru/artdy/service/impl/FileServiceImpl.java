@@ -61,7 +61,9 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public AppPhoto processPhoto(Message message) {
-        PhotoSize photoSize = message.getPhoto().get(0);
+        int size = message.getPhoto().size();
+        int photoIndex = size > 1 ? size - 1 : 0;
+        PhotoSize photoSize = message.getPhoto().get(photoIndex);
         String fileId = photoSize.getFileId();
         ResponseEntity<String> response = getFilePath(fileId);
         if (response.getStatusCode() == HttpStatus.OK) {
