@@ -17,6 +17,7 @@ import ru.artdy.repository.RawDataRepository;
 import ru.artdy.service.AnswerProducer;
 import ru.artdy.service.FileService;
 import ru.artdy.service.MainService;
+import ru.artdy.service.enums.LinkType;
 import ru.artdy.service.enums.ServiceCommand;
 
 import static ru.artdy.service.enums.ServiceCommand.*;
@@ -93,10 +94,10 @@ public class MainServiceImpl implements MainService {
         }
         try {
             AppDocument appDocument = fileService.processDoc(update.getMessage());
-            //TODO добавить генерацию ссылки для скачивания
+            String downloadingLink = fileService.generateLink(appDocument.getId(), LinkType.GET_DOC);
             String textAnswer = "Document successfully uploaded! " +
                     "Your downloading link: " +
-                    "https://www.google.com";
+                    downloadingLink;
             sendAnswer(textAnswer, chatId);
         } catch (UploadFileException e) {
             log.error(e);
@@ -129,10 +130,10 @@ public class MainServiceImpl implements MainService {
 
         try {
             AppPhoto appPhoto = fileService.processPhoto(update.getMessage());
-            //TODO добавить генерацию ссылки для скачивания
+            String downloadingLink = fileService.generateLink(appPhoto.getId(), LinkType.GET_PHOTO);
             String textAnswer = "Photo successfully uploaded! " +
                     "Your downloading link: " +
-                    "https://www.google.com";
+                    downloadingLink;
             sendAnswer(textAnswer, chatId);
         } catch (UploadFileException e) {
             log.error(e);
