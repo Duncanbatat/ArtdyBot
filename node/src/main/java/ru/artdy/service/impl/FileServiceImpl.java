@@ -17,6 +17,8 @@ import ru.artdy.repository.AppDocumentRepository;
 import ru.artdy.repository.AppPhotoRepository;
 import ru.artdy.repository.BinaryContentRepository;
 import ru.artdy.service.FileService;
+import ru.artdy.service.enums.LinkType;
+import ru.artdy.utils.CryptoTool;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,17 +34,22 @@ public class FileServiceImpl implements FileService {
     private String fileInfoUri;
     @Value("${service.file_storage.uri}")
     private String fileStorageUri;
+    @Value("${rest_service.link}")
+    private String restServiceLink;
 
     private final AppDocumentRepository appDocumentRepository;
     private final AppPhotoRepository appPhotoRepository;
     private final BinaryContentRepository binaryContentRepository;
+    private final CryptoTool cryptoTool;
 
     public FileServiceImpl(AppDocumentRepository appDocumentRepository,
                            AppPhotoRepository appPhotoRepository,
-                           BinaryContentRepository binaryContentRepository) {
+                           BinaryContentRepository binaryContentRepository,
+                           CryptoTool cryptoTool) {
         this.appDocumentRepository = appDocumentRepository;
         this.appPhotoRepository = appPhotoRepository;
         this.binaryContentRepository = binaryContentRepository;
+        this.cryptoTool = cryptoTool;
     }
 
     @Override
@@ -75,6 +82,15 @@ public class FileServiceImpl implements FileService {
         }
     }
 
+    @Override
+    public String generateLink(Long id, LinkType linkType) {
+        String hash = cryptoTool.hashOf(id);
+        return "http://" +
+                restServiceLink + "/" +
+                linkType.toString() +
+                "?id=" + hash;
+    }
+
     private AppPhoto buildTransientAppPhoto(PhotoSize photoSize, BinaryContent persistentBinaryContent) {
         return AppPhoto.builder()
                 .telegramFileId(photoSize.getFileId())
@@ -94,10 +110,9 @@ public class FileServiceImpl implements FileService {
 
     private static String getFilePath(ResponseEntity<String> response) {
         JSONObject jsonObject = new JSONObject(response.getBody());
-        String filePath = String.valueOf(jsonObject
+        return String.valueOf(jsonObject
                 .getJSONObject("result")
                 .getString("file_path"));
-        return filePath;
     }
 
     private AppDocument buildTransientAppDoc(Document document, BinaryContent persistentBinaryContent) {
