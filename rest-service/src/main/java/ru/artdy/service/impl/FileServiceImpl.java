@@ -10,6 +10,7 @@ import ru.artdy.entity.BinaryContent;
 import ru.artdy.repository.AppDocumentRepository;
 import ru.artdy.repository.AppPhotoRepository;
 import ru.artdy.service.FileService;
+import ru.artdy.utils.CryptoTool;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,22 +20,29 @@ import java.io.IOException;
 public class FileServiceImpl implements FileService {
     private final AppDocumentRepository appDocumentRepository;
     private final AppPhotoRepository appPhotoRepository;
+    private  final CryptoTool cryptoTool;
 
-    public FileServiceImpl(AppDocumentRepository appDocumentRepository, AppPhotoRepository appPhotoRepository) {
+    public FileServiceImpl(AppDocumentRepository appDocumentRepository, AppPhotoRepository appPhotoRepository, CryptoTool cryptoTool) {
         this.appDocumentRepository = appDocumentRepository;
         this.appPhotoRepository = appPhotoRepository;
+        this.cryptoTool = cryptoTool;
     }
 
     @Override
-    public AppDocument getDocument(String encodedId) {
-        //TODO добавить дешифрование
-        long id = Long.parseLong(encodedId);
+    public AppDocument getDocument(String hash) {
+        Long id = cryptoTool.idOf(hash);
+        if (id == null) {
+            return null;
+        }
         return appDocumentRepository.findById(id).orElse(null);
     }
 
     @Override
-    public AppPhoto getPhoto(String encodedId) {
-        long id = Long.parseLong(encodedId);
+    public AppPhoto getPhoto(String hash) {
+        Long id = cryptoTool.idOf(hash);
+        if (id == null) {
+            return null;
+        }
         return appPhotoRepository.findById(id).orElse(null);
     }
 

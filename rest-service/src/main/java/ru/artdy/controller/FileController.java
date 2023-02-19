@@ -4,10 +4,7 @@ import lombok.extern.log4j.Log4j;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.artdy.entity.AppDocument;
 import ru.artdy.entity.AppPhoto;
 import ru.artdy.entity.BinaryContent;
@@ -23,7 +20,7 @@ public class FileController {
         this.fileService = fileService;
     }
 
-    @GetMapping("/get-doc")
+    @RequestMapping(method = RequestMethod.GET, value = "/get-doc")
     public ResponseEntity<?> getDocument(@RequestParam("id") String id) {
         AppDocument document = fileService.getDocument(id);
 
@@ -44,7 +41,7 @@ public class FileController {
                 .body(fileSystemResource);
     }
 
-    @GetMapping("/get-photo")
+    @RequestMapping(method = RequestMethod.GET, value = "/get-photo")
     public ResponseEntity<?> getPhoto(@RequestParam("id") String id) {
         AppPhoto photo = fileService.getPhoto(id);
 
@@ -63,5 +60,10 @@ public class FileController {
                 .contentType(MediaType.IMAGE_JPEG)
                 .header("Content-disposition", "attachment;")
                 .body(fileSystemResource);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/hello")
+    public String Hello() {
+        return "Hello";
     }
 }
