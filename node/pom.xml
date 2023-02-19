@@ -59,7 +59,7 @@
 
         <dependency>
             <groupId>ru.artdy</groupId>
-            <artifactId>common_jpa</artifactId>
+            <artifactId>common-jpa</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
