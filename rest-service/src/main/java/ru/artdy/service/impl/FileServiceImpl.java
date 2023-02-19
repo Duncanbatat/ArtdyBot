@@ -31,15 +31,14 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public AppDocument getDocument(String encodedId) {
-        //TODO добавить дешифрование
-        long id = Long.parseLong(encodedId);
+    public AppDocument getDocument(String hash) {
+        Long id = cryptoTool.idOf(hash);
         return appDocumentRepository.findById(id).orElse(null);
     }
 
     @Override
-    public AppPhoto getPhoto(String encodedId) {
-        long id = Long.parseLong(encodedId);
+    public AppPhoto getPhoto(String hash) {
+        Long id = cryptoTool.idOf(hash);
         return appPhotoRepository.findById(id).orElse(null);
     }
 
