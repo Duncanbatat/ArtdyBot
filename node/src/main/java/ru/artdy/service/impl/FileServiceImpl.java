@@ -44,7 +44,8 @@ public class FileServiceImpl implements FileService {
 
     public FileServiceImpl(AppDocumentRepository appDocumentRepository,
                            AppPhotoRepository appPhotoRepository,
-                           BinaryContentRepository binaryContentRepository, CryptoTool cryptoTool) {
+                           BinaryContentRepository binaryContentRepository,
+                           CryptoTool cryptoTool) {
         this.appDocumentRepository = appDocumentRepository;
         this.appPhotoRepository = appPhotoRepository;
         this.binaryContentRepository = binaryContentRepository;
@@ -109,10 +110,9 @@ public class FileServiceImpl implements FileService {
 
     private static String getFilePath(ResponseEntity<String> response) {
         JSONObject jsonObject = new JSONObject(response.getBody());
-        String filePath = String.valueOf(jsonObject
+        return String.valueOf(jsonObject
                 .getJSONObject("result")
                 .getString("file_path"));
-        return filePath;
     }
 
     private AppDocument buildTransientAppDoc(Document document, BinaryContent persistentBinaryContent) {

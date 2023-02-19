@@ -37,7 +37,7 @@ public class FileController {
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(document.getMimeType()))
-                .header("Content-type", "attachment; filename=" + document.getDocName())
+//                .header("Content-disposition", "attachment; filename=" + document.getDocName())
                 .body(fileSystemResource);
     }
 
@@ -58,7 +58,7 @@ public class FileController {
 
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)
-                .header("Content-disposition", "attachment;")
+//                .header("Content-disposition", "attachment;")
                 .body(fileSystemResource);
     }
 

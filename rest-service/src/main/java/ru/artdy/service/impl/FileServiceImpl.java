@@ -20,9 +20,12 @@ import java.io.IOException;
 public class FileServiceImpl implements FileService {
     private final AppDocumentRepository appDocumentRepository;
     private final AppPhotoRepository appPhotoRepository;
-    private  final CryptoTool cryptoTool;
 
-    public FileServiceImpl(AppDocumentRepository appDocumentRepository, AppPhotoRepository appPhotoRepository, CryptoTool cryptoTool) {
+    private final CryptoTool cryptoTool;
+
+    public FileServiceImpl(AppDocumentRepository appDocumentRepository,
+                           AppPhotoRepository appPhotoRepository,
+                           CryptoTool cryptoTool) {
         this.appDocumentRepository = appDocumentRepository;
         this.appPhotoRepository = appPhotoRepository;
         this.cryptoTool = cryptoTool;
