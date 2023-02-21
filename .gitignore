@@ -4,8 +4,8 @@ logs/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-/dispatcher/src/main/resources/application.properties
-/node/src/main/resources/application.properties
+*.properties
+
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
