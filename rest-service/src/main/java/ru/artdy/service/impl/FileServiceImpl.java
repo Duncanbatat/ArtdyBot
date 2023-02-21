@@ -56,6 +56,8 @@ public class FileServiceImpl implements FileService {
             File tempFile = File.createTempFile("tempFile", ".bin");
             tempFile.deleteOnExit();
             FileUtils.writeByteArrayToFile(tempFile, binaryContent.getFileAsByteArray());
+            //TODO проверить корректность удаления временного файла
+            //tempFile.delete();
             return new FileSystemResource(tempFile);
         } catch (IOException e) {
             log.error(e);
