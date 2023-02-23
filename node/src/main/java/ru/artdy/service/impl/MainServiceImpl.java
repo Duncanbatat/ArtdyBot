@@ -20,6 +20,8 @@ import ru.artdy.service.MainService;
 import ru.artdy.service.enums.LinkType;
 import ru.artdy.service.enums.ServiceCommand;
 
+import java.util.Optional;
+
 import static ru.artdy.service.enums.ServiceCommand.*;
 import static ru.artdy.entity.enums.UserState.*;
 
@@ -160,8 +162,8 @@ public class MainServiceImpl implements MainService {
         Message updateMessage = update.getMessage();
         User telegramUser = updateMessage.getFrom();
 
-        AppUser persistentAppUser = appUserRepository.findAppUserByTelegramUserId(telegramUser.getId());
-        if (persistentAppUser == null) {
+        Optional<AppUser> persistentAppUser = appUserRepository.findByTelegramUserId(telegramUser.getId());
+        if (persistentAppUser.isEmpty()) {
             AppUser transientAppUser = AppUser.builder()
                     .telegramUserId(telegramUser.getId())
                     .username(telegramUser.getUserName())
@@ -173,7 +175,7 @@ public class MainServiceImpl implements MainService {
                     .build();
             return appUserRepository.save(transientAppUser);
         }
-        return persistentAppUser;
+        return persistentAppUser.get();
     }
 
     private void saveRawData(Update update) {
